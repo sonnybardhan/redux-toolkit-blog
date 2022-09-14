@@ -1,0 +1,117 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+body {
+  /* background-color: powderblue; */
+  margin: 0;
+  display: flex;
+  /* place-items: center; */
+  min-width: 320px;
+  min-height: 100vh;
+  color: rgb(70, 70, 70);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: start;
+  gap: 1em;
+  padding: 1em;
+}
+
+form label {
+  width: 100%;
+}
+
+form input,
+form textarea,
+form select {
+  width: 300px;
+}
+
+input,
+select {
+  height: 30px;
+}
+
+textarea {
+  height: 100px;
+  resize: none;
+}
+
+form button {
+  /* margin-top: 1em; */
+  align-self: flex-end;
+}
+
+button {
+  padding: 0.5em;
+}
+
+main {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+article {
+  background-color: rgb(208, 249, 255);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  border-radius: 0.25em;
+  padding: 1em;
+}
+
+.author {
+  width: 100%;
+  font-style: italic;
+  font-size: 14px;
+  text-align: end;
+}
+
+.created-at {
+  font-style: italic;
+  font-size: 12px;
+  width: 100%;
+  text-align: end;
+}
+
+.reaction-buttons-container {
+  display: flex;
+  width: 100%;
+  gap: 0.5em;
+}
+
+.reaction-buttons-container button {
+  border-radius: 0.25em;
+  border: none;
+  background-color: skyblue;
+  cursor: pointer;
+}
