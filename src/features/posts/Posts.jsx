@@ -1,44 +1,51 @@
-import { useSelector } from 'react-redux';
-import { selectAllPosts } from './postsSlice';
-import User from '../users/User';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectAllPosts,
+  getPostsError,
+  getPostsStatus,
+  fetchPosts,
+} from './postsSlice';
+// import User from '../users/User';
 import React from 'react';
-import TimeAgo from './TimeAgo';
-import ReactionButtons from './ReactionButtons';
-
-const reactionEmojis = {
-  thumbsUp: '👍',
-  thumbsDown: '👎',
-  wow: '🤩',
-  heart: '❤️',
-};
+// import TimeAgo from './TimeAgo';
+// import ReactionButtons from './ReactionButtons';
+import { useEffect } from 'react';
+import Post from './Post';
 
 const Posts = () => {
+  const dispatch = useDispatch();
+  const status = useSelector(getPostsStatus);
+  const error = useSelector(getPostsError);
   const posts = useSelector(selectAllPosts);
 
-  // const orderedPosts = posts.slice().sort((a, b) => b.createdAt - a.createdAt);
-  const orderedPosts = posts
-    .slice()
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchPosts());
+    }
+  }, [status, dispatch]);
 
-  const postsToRender = orderedPosts.map((post) => (
-    <article key={post.id}>
-      <h3>{post.title}</h3>
-      <p>
-        {post.content.length > 50
-          ? `${post.content.slice(0, 50)} ... `
-          : post.content}{' '}
-      </p>
-      <User userId={post.userId} />
-      <TimeAgo timestamp={post.createdAt} />
-      <ReactionButtons post={post} />
-      {/* <ReactionButtons postId={post.id} /> */}
-    </article>
-  ));
+  let content;
+
+  if (status === 'loading') {
+    content = <p>Loading ... </p>;
+  } else if (status === 'succeeded') {
+    const orderedPosts = posts
+      .slice()
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    content = orderedPosts.map((post) => (
+      <Post post={post} key={Math.random()} />
+    ));
+  } else if (status === 'failed') {
+    content = <p>{error}</p>;
+  } else {
+    console.log('status: ', status);
+  }
 
   return (
     <main>
       <h2>Posts</h2>
-      {postsToRender}
+      {content}
     </main>
   );
 };
