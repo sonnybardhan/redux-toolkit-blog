@@ -153,6 +153,8 @@ const postsSlice = createSlice({
 });
 
 export const selectAllPosts = (state) => state.posts.posts;
+export const selectPostsByUserId = (state, userId) =>
+  state.posts.posts.filter((post) => Number(post.userId) === Number(userId));
 export const getPostById = (state, postId) =>
   state.posts.posts.find((currentPost) => currentPost.id === postId);
 export const getPostsStatus = (state) => state.posts.status;

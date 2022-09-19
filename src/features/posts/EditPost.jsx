@@ -86,7 +86,7 @@ const EditPost = () => {
           type='text'
           id='post-author'
           value={userId}
-          onChange={(e) => setUserId(e.target.value)}
+          onChange={(e) => setUserId(Number(e.target.value))}
         >
           <option> - </option>
           {allUsers}
