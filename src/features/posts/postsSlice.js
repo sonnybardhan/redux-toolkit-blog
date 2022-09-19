@@ -22,7 +22,36 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
 export const addPost = createAsyncThunk('posts/addPost', async (newPost) => {
   try {
     const response = await axios.post(POSTS_URL, newPost);
+    console.log('created: ', response.data);
     return response.data;
+  } catch (error) {
+    return error.message;
+  }
+});
+
+export const editPost = createAsyncThunk('posts/editPost', async (post) => {
+  const { id } = post;
+  try {
+    const response = await axios.put(`${POSTS_URL}/${id}`, post);
+    return response.data;
+  } catch (error) {
+    return post; //only for testing redux for this example (since our API doesn't take posts);
+    return error.message;
+  }
+});
+
+export const deletePost = createAsyncThunk('posts/deletePost', async (post) => {
+  const { id } = post;
+  console.log('delete called');
+  try {
+    const response = await axios.delete(`${POSTS_URL}/${id}`);
+    console.log('delete response: ', response);
+    if (response?.status === 200) {
+      return post;
+    } else {
+      const responseStr = response?.status + ' ' + response.statusText;
+      return responseStr;
+    }
   } catch (error) {
     return error.message;
   }
@@ -89,22 +118,43 @@ const postsSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(addPost.fulfilled, (state, action) => {
-        console.log('action: ', action);
         action.payload.userId = Number(action.payload.userId);
-        action.payload.date = new Date().toISOString();
         action.payload.reactions = {
           thumbsUp: 0,
           thumbsDown: 0,
           wow: 0,
           heart: 0,
         };
-        console.log('new post: ', action.payload);
+        action.payload.date = new Date().toISOString();
+
         state.posts.push(action.payload);
+      })
+      .addCase(editPost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log('update could not be completed');
+          console.log('issue with post: ', action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        action.payload.date = new Date().toISOString();
+        const otherPosts = state.posts.filter((post) => post.id !== id);
+        state.posts = [...otherPosts, action.payload];
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log('could not delete the post!');
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        state.posts = state.posts.filter((post) => post.id !== id);
       });
   },
 });
 
 export const selectAllPosts = (state) => state.posts.posts;
+export const getPostById = (state, postId) =>
+  state.posts.posts.find((currentPost) => currentPost.id === postId);
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
 export const { createPost, addReaction } = postsSlice.actions;

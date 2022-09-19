@@ -12,14 +12,13 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
     return error.message;
   }
 });
-
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {},
   extraReducers(builder) {
     builder.addCase(fetchUsers.fulfilled, (state, action) => {
-      return action.payload; //this replaces the previous state as we do not want duplicates of users
+      return action.payload;
     });
   },
 });

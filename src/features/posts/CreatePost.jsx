@@ -1,12 +1,15 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllUsers } from '../users/usersSlice';
 import React, { useState } from 'react';
-import { createPost } from './postsSlice';
+// import { createPost } from './postsSlice';
 import { addPost } from './postsSlice';
+import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const users = useSelector(selectAllUsers);
+  // const [id, setId] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [userId, setUserId] = useState('');
@@ -18,14 +21,18 @@ const CreatePost = () => {
       ? true
       : false;
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+
     if (save) {
       try {
         setAddRequestStatus('pending');
         console.log('post to add: ', { title, body: content, userId });
-        dispatch(addPost({ title, body: content, userId })).unwrap();
+        const response = await dispatch(
+          addPost({ title, body: content, userId })
+        ).unwrap();
 
+        // navigate(`/post/${response.id}`);
         setTitle('');
         setContent('');
         setUserId('');
@@ -33,6 +40,7 @@ const CreatePost = () => {
         console.error('Error! Failed to save the post. ', err);
       } finally {
         setAddRequestStatus('idle');
+        navigate('/');
       }
     }
   };
