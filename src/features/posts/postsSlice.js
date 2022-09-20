@@ -13,12 +13,11 @@ const postsAdapter = createEntityAdapter({
   sortComparer: (a, b) => b.date.localeCompare(a.date),
 });
 
-const initialState = {
-  posts: [],
+const initialState = postsAdapter.getInitialState({
   status: 'idle',
   error: null,
   count: 0,
-};
+});
 // const initialState = {
 //   posts: [],
 //   status: 'idle',
@@ -80,7 +79,8 @@ const postsSlice = createSlice({
     addReaction: {
       reducer(state, action) {
         const { postId, reaction } = action.payload;
-        const post = state.posts.find((post) => post.id === postId);
+        // const post = state.posts.find((post) => post.id === postId);
+        const post = state.entities[postId];
         if (post) {
           post.reactions[reaction] += 1;
         }
@@ -108,7 +108,8 @@ const postsSlice = createSlice({
           };
           return post;
         });
-        state.posts = state.posts.concat(retrievedPosts);
+        // state.posts = state.posts.concat(retrievedPosts);
+        postsAdapter.upsertMany(state, retrievedPosts);
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed';
@@ -124,7 +125,8 @@ const postsSlice = createSlice({
         };
         action.payload.date = new Date().toISOString();
 
-        state.posts.push(action.payload);
+        // state.posts.push(action.payload);
+        postsAdapter.addOne(state, action.payload);
       })
       .addCase(editPost.fulfilled, (state, action) => {
         if (!action.payload?.id) {
@@ -134,8 +136,7 @@ const postsSlice = createSlice({
         }
         const { id } = action.payload;
         action.payload.date = new Date().toISOString();
-        const otherPosts = state.posts.filter((post) => post.id !== id);
-        state.posts = [...otherPosts, action.payload];
+        postsAdapter.upsertOne(state, action.payload);
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         if (!action.payload?.id) {
@@ -144,12 +145,20 @@ const postsSlice = createSlice({
           return;
         }
         const { id } = action.payload;
-        state.posts = state.posts.filter((post) => post.id !== id);
+        // state.posts = state.posts.filter((post) => post.id !== id);
+        postsAdapter.removeOne(state, id);
       });
   },
 });
 
-export const selectAllPosts = (state) => state.posts.posts;
+// export const selectAllPosts = (state) => state.posts.posts;
+
+export const {
+  selectAll: selectAllPosts,
+  selectById: getPostById,
+  selectIds: selectPostIds,
+} = postsAdapter.getSelectors((state) => state.posts);
+
 export const selectPostsByUserId = (state, userId) =>
   state.posts.posts.filter((post) => Number(post.userId) === Number(userId));
 export const selectPostsByUser = createSelector(
@@ -157,8 +166,9 @@ export const selectPostsByUser = createSelector(
   (posts, userId) =>
     posts.filter((post) => Number(post.userId) === Number(userId))
 );
-export const getPostById = (state, postId) =>
-  state.posts.posts.find((currentPost) => currentPost.id === postId);
+// export const getPostById = (state, postId) =>
+//   state.posts.posts.find((currentPost) => currentPost.id === postId);
+
 export const getCount = (state) => state.posts.count;
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
