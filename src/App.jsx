@@ -2,7 +2,7 @@ import './App.css';
 import CreatePost from './features/posts/CreatePost';
 import Post from './features/posts/Post';
 import Posts from './features/posts/Posts';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import EditPost from './features/posts/EditPost';
 import Users from './features/users/Users';
@@ -23,6 +23,8 @@ function App() {
           <Route path=':userId' element={<UserPosts />} />
         </Route>
       </Route>
+
+      <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
   );
 }

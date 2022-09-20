@@ -1,14 +1,30 @@
-import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+  createEntityAdapter,
+} from '@reduxjs/toolkit';
 import axios from 'axios';
 import { sub } from 'date-fns';
 
 const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
 
+const postsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+});
+
 const initialState = {
   posts: [],
   status: 'idle',
   error: null,
+  count: 0,
 };
+// const initialState = {
+//   posts: [],
+//   status: 'idle',
+//   error: null,
+//   count: 0,
+// };
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   try {
@@ -61,28 +77,6 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    createPost: {
-      reducer(state, action) {
-        state.posts.push(action.payload);
-      },
-      prepare(title, content, userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-            content,
-            userId,
-            date: new Date().toISOString(),
-            reactions: {
-              thumbsUp: 0,
-              thumbsDown: 0,
-              wow: 0,
-              heart: 0,
-            },
-          },
-        };
-      },
-    },
     addReaction: {
       reducer(state, action) {
         const { postId, reaction } = action.payload;
@@ -91,6 +85,9 @@ const postsSlice = createSlice({
           post.reactions[reaction] += 1;
         }
       },
+    },
+    increaseCount(state, action) {
+      state.count += 1;
     },
   },
   extraReducers(builder) {
@@ -155,9 +152,15 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state) => state.posts.posts;
 export const selectPostsByUserId = (state, userId) =>
   state.posts.posts.filter((post) => Number(post.userId) === Number(userId));
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state, userId) => userId],
+  (posts, userId) =>
+    posts.filter((post) => Number(post.userId) === Number(userId))
+);
 export const getPostById = (state, postId) =>
   state.posts.posts.find((currentPost) => currentPost.id === postId);
+export const getCount = (state) => state.posts.count;
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
-export const { createPost, addReaction } = postsSlice.actions;
+export const { createPost, addReaction, increaseCount } = postsSlice.actions;
 export default postsSlice.reducer;

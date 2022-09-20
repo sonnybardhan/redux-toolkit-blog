@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import User from '../users/User';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
@@ -18,5 +18,4 @@ const PostContent = ({ post }) => {
     </article>
   );
 };
-
 export default PostContent;
